@@ -64,7 +64,7 @@ class PanelPhase(wx.Panel,wx.TreeCtrl,wx.App,Action):
 		self.visual_amp_recip = None
 		self.visual_phase_recip = None
 		self.cms = numpy.load(os.path.join(os.path.dirname(__file__), 'cms.npy'))
-		self.cmls = numpy.zeros((4,2), dtype=numpy.int16)
+		self.cmls = numpy.zeros((6,2), dtype=numpy.int16)
 		self.compile = 1
 		self.font = self.ancestor.GetParent().font
 		self.panel = wx.Panel.__init__(self, parent)
@@ -72,10 +72,10 @@ class PanelPhase(wx.Panel,wx.TreeCtrl,wx.App,Action):
 		self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
 		self.hbox2 = wx.BoxSizer(wx.HORIZONTAL)
 		self.splitter = wx.SplitterWindow(self, style=wx.SP_NOBORDER | wx.SP_NO_XP_THEME)
-		self.splitter.SetMinimumPaneSize(400)
+		self.splitter.SetMinimumPaneSize(35)
 		self.panel1 = wx.Panel(self.splitter,  style=wx.NO_BORDER)
 		self.panel2 = wx.Panel(self.splitter,  style=wx.NO_BORDER)
-		self.maintree = wx.TreeCtrl(self.panel1, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_LINES_AT_ROOT | wx.TR_SINGLE, size=(180,1))
+		self.maintree = wx.TreeCtrl(self.panel1, style=wx.TR_HAS_BUTTONS | wx.TR_HIDE_ROOT | wx.TR_LINES_AT_ROOT | wx.TR_SINGLE, size=(1,-1))
 		self.maintree.__collapsing = False
 		self.maintree.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.OnExpColTreeItem)
 		self.maintree.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.OnExpColTreeItem)
@@ -133,7 +133,7 @@ class PanelPhase(wx.Panel,wx.TreeCtrl,wx.App,Action):
 		fontdc.SetFont(self.font)
 		fontw,fonth = fontdc.GetTextExtent(" ")
 		mainlistchksize = fonth
-		self.mainlist=CheckListCtrl(self.panel1, id=-1, bmpsize=(mainlistchksize,mainlistchksize), size=(180,1))
+		self.mainlist=CheckListCtrl(self.panel1, id=-1, bmpsize=(mainlistchksize,mainlistchksize), size=(5,-1))
 		self.mainlist.SetFont(self.font)
 		okbmw,okbmh = getpipelineok24Bitmap().GetSize()
 		self.ListColumnTick = self.mainlist.InsertColumn(0,'Enabled', width=(8+okbmw))
@@ -145,13 +145,14 @@ class PanelPhase(wx.Panel,wx.TreeCtrl,wx.App,Action):
 		self.mainlist.Bind(wx.EVT_KEY_UP, self.OnKeyUpListItem)
 		self.CurrentListItem = -1
 		self.vbox1 = wx.BoxSizer(wx.VERTICAL)
-		self.vbox1.Add((-1,200))
-		self.spin_up = BitmapButtonNew(self.panel1, -1, getspinupBitmap(), size=(20, 50))
+		self.vbox1.Add((-1,20))
+		self.spin_up = BitmapButtonNew(self.panel1, -1, getspinupBitmap(), size=(20, 50), style=wx.NO_BORDER)
 		self.spin_up.SetToolTipNew('Change item positon in list.')
-		self.spin_down = BitmapButtonNew(self.panel1, -1, getspindownBitmap(), size=(20, 50))
+		self.spin_down = BitmapButtonNew(self.panel1, -1, getspindownBitmap(), size=(20, 50), style=wx.NO_BORDER)
 		self.spin_down.SetToolTipNew('Change item positon in list.')
-		self.vbox1.Add(self.spin_up)
-		self.vbox1.Add(self.spin_down)
+		self.vbox1.Add(self.spin_up, 1, wx.EXPAND | wx.TOP | wx.BOTTOM, 5)
+		self.vbox1.Add(self.spin_down, 1, wx.EXPAND | wx.TOP | wx.BOTTOM, 5)
+		self.vbox1.Add((-1,20))
 		self.Bind(wx.EVT_BUTTON, self.OnClickUp, self.spin_up)
 		self.Bind(wx.EVT_BUTTON, self.OnClickDown, self.spin_down)
 		self.hbox1.Add(self.maintree, 1, wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP ,2)
@@ -163,7 +164,7 @@ class PanelPhase(wx.Panel,wx.TreeCtrl,wx.App,Action):
 		self.panel1.font = self.font
 		self.panel2.SetSizer(self.hbox2)
 		self.panel2.font = self.font
-		self.splitter.SplitVertically(self.panel1,self.panel2, sashPosition=400)
+		self.splitter.SplitVertically(self.panel1,self.panel2, sashPosition=350)
 		self.vbox.Add(self.splitter, 5,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
 		self.vbox.Add((-1, 5))
 		self.panel3 = wx.Panel(self,  style=wx.NO_BORDER)

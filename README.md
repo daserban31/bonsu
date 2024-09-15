@@ -5,7 +5,7 @@
 
 ## Introduction
 
-Bonsu is a collection of tools and algorithms primarily for the reconstruction of phase information from diffraction intensity measurements.
+Bonsu is a collection of tools and algorithms for the reconstruction of phase information from diffraction intensity measurements. Its primary focus is Bragg Coherent Diffraction Imaging (BCDI) data visualisation, reconstruction and analysis.  
 
 ## Citation
 

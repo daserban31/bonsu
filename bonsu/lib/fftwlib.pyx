@@ -178,7 +178,7 @@ cpdef object fftw_destroyplan(object planobj):
 		raise TypeError()
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void fftw_stride_scale(f_sdp_t ar_in, cnumpy.int_t size, f_sd_t scale, int nthreads) noexcept nogil:
+cdef void fftw_stride_scale(f_sdp_t ar_in, cnumpy.int64_t size, f_sd_t scale, int nthreads) noexcept nogil:
 	cdef cnumpy.int64_t i
 	for i in prange(size, num_threads=nthreads):
 		ar_in[2*i] *= scale
@@ -201,7 +201,7 @@ cdef void _fftw_stride(double complex[:, :, ::1] ar_in1, double complex[:, :, ::
 	cdef cdouble* ar_in2_buff = <cdouble*> &ar_in2[0,0,0]
 	cdef double* ar_in2_buff2 = <double*> &ar_in2[0,0,0]
 	cdef int[3] ar_in2_shape_buff = [<int> ar_in2.shape[0], <int> ar_in2.shape[1], <int> ar_in2.shape[2]]
-	cdef cnumpy.int_t size = ar_in2.shape[0]*ar_in2.shape[1]*ar_in2.shape[2]
+	cdef cnumpy.int64_t size = ar_in2.shape[0]*ar_in2.shape[1]*ar_in2.shape[2]
 	if direction == FFTW_TORECIP:
 		fftw_execute_dft(plan.torecip, ar_in1_buff, ar_in2_buff)
 	elif direction == FFTW_TOREAL:
@@ -216,7 +216,7 @@ cdef void _fftwf_stride(float complex[:, :, ::1] ar_in1, float complex[:, :, ::1
 	cdef csingle* ar_in2_buff = <csingle*> &ar_in2[0,0,0]
 	cdef float* ar_in2_buff2 = <float*> &ar_in2[0,0,0]
 	cdef int[3] ar_in2_shape_buff = [<int> ar_in2.shape[0], <int> ar_in2.shape[1], <int> ar_in2.shape[2]]
-	cdef cnumpy.int_t size = ar_in2.shape[0]*ar_in2.shape[1]*ar_in2.shape[2]
+	cdef cnumpy.int64_t size = ar_in2.shape[0]*ar_in2.shape[1]*ar_in2.shape[2]
 	if direction == FFTW_TORECIP:
 		fftwf_execute_dft(plan.torecipf, ar_in1_buff, ar_in2_buff)
 	elif direction == FFTW_TOREAL:

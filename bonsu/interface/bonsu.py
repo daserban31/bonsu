@@ -23,7 +23,7 @@ __maintainer__ = "Marcus C. Newton"
 __copyright__ = "Copyright 2011 - 2024 Marcus C. Newton"
 __credits__ = ["Marcus C. Newton"]
 __license__ = "GPL v3"
-__version__ = "3.7.0"
+__version__ = "3.7.1"
 __appname__ = "Bonsu"
 __email__ = "Bonsu.Devel@gmail.com"
 __website__ = "github.com/bonsudev/bonsu"
@@ -38,6 +38,9 @@ import wx.adv
 import numpy
 import vtk
 from PIL import __version__ as PILVERSION
+import tempfile
+import zipfile
+import argparse
 from .panelphase import PanelPhase
 from .panelvisual import PanelVisual
 from .panelgraph import PanelGraph
@@ -54,6 +57,7 @@ class MainWindow(wx.Frame):
 		self.dirname=os.getcwd()
 		wx.Frame.__init__(self, parent, title=title, size=(1000,700))
 		self.SetSizeHints(1000,700,-1,-1)
+		self.docstmpdir = None
 		self.CreateStatusBar()
 		filemenu= wx.Menu()
 		menuOpen = filemenu.Append(wx.ID_OPEN, "&Open"," Open saved state")
@@ -169,23 +173,35 @@ class MainWindow(wx.Frame):
 		result = dlg.ShowModal()
 		dlg.Destroy()
 		if result == wx.ID_OK:
-			path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'docs',  'bonsu.html')
-			if sys.platform.startswith('win'):
-				os.startfile(path)
-			elif sys.platform.startswith('darwin'):
-				from subprocess import Popen
-				Popen(['open', path])
+			try:
+				if self.docstmpdir is None:
+					self.docstmpdir = tempfile.TemporaryDirectory()
+			except:
+				dlg = wx.MessageDialog(self, "Unable to create temp directory.","Error", wx.OK|wx.ICON_INFORMATION)
+				dlg.ShowModal()
 			else:
-				try:
-					from subprocess import Popen
-					Popen(['xdg-open', path])
-				except:
-					pass
+				docszip = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'docs',  'docs.zip')
+				with zipfile.ZipFile(docszip) as zarchive:
+					zarchive.extractall(path=self.docstmpdir.name)
+					path = os.path.join(self.docstmpdir.name,  'bonsu.html')
+					if sys.platform.startswith('win'):
+						os.startfile(path)
+					elif sys.platform.startswith('darwin'):
+						from subprocess import Popen
+						Popen(['open', path])
+					else:
+						try:
+							from subprocess import Popen
+							Popen(['xdg-open', path])
+						except:
+							pass
 	def OnExit(self,e):
 		dlg = wx.MessageDialog(self, "Exit Bonsu?","Confirm Exit", wx.OK|wx.CANCEL|wx.ICON_QUESTION)
 		result = dlg.ShowModal()
 		dlg.Destroy()
 		if result == wx.ID_OK:
+			if self.docstmpdir is not None:
+				self.docstmpdir.cleanup()
 			self.Destroy()
 	def CurrentWD(self):
 		try:
@@ -228,7 +244,9 @@ class MainWindow(wx.Frame):
 			cwd = self.CurrentWD()
 			dlg = wx.DirDialog(self, 'Set Working Directory', cwd, style=wx.DD_DEFAULT_STYLE, name="Change Current Working Directory")
 			if dlg.ShowModal() == wx.ID_OK:
-				os.chdir(dlg.GetPath())
+				title = dlg.GetPath()
+				self.SetTitle("Bonsu - "+title)
+				os.chdir(title)
 			dlg.Destroy()
 	def OnUndock(self,e):
 		try:
@@ -244,19 +262,6 @@ class MainWindow(wx.Frame):
 		else:
 			self.visualdialog.OnExit(e)
 			self.visualdialog_docked = True
-	def OnFileArg(self):
-		try:
-			arg = sys.argv[1]
-		except:
-			pass
-		else:
-			if arg.endswith(".fin"):
-				self.filename=arg
-				self.dirname=os.getcwd()
-				try:
-					RestoreInstance(self)
-				except:
-					pass
 	def OnFXAAOn(self, event):
 		self.nb.GetPage(1).FXAAScene(True)
 	def OnFXAAOff(self, event):
@@ -289,12 +294,11 @@ class main():
 	def __init__(self):
 		self.Start()
 	def Start(self):
-		app = wx.App()
-		if hasattr(app, 'GTKSuppressDiagnostics'):
-			app.GTKSuppressDiagnostics()
+		self.app = wx.App()
+		if hasattr(self.app, 'GTKSuppressDiagnostics'):
+			self.app.GTKSuppressDiagnostics()
 		self.SetFrame()
-		self.ShowFrame()
-		app.MainLoop()
+		self.ParseArgs()
 	def SetFrame(self):
 		self.frame = MainWindow(None, "Bonsu - The Interactive Phase Retrieval Suite")
 		self.nb = wx.Notebook(self.frame)
@@ -309,9 +313,66 @@ class main():
 		self.frame.SetSizer(self.frame.sizer)
 		self.frame.Fit()
 		self.frame.Layout()
-		self.frame.OnFileArg()
+	def ParseArgs(self):
+		parser = argparse.ArgumentParser()
+		parser.add_argument("-v","--version", action='version', version=__version__)
+		parser.add_argument('filename', help="Load .fin file.", metavar="FILENAME", nargs='?', default=None)
+		parser.add_argument("-n", "--ncpu", help="Number of CPU threads.", nargs=1, type=int, default=1)
+		parser.add_argument("-p", "--precision", help="Floating-point precision: f - single ; d - double.", nargs=1, choices=['f', 'd'])
+		parser.add_argument("-x", "--execute", help="Execute *.fin file.", dest='filename_run', metavar="FILENAME", default=None, nargs=1)
+		self.args = parser.parse_args()
+		fn = self.args.filename
+		if isinstance(self.args.filename_run, list):
+			fnr = self.args.filename_run[0]
+		else:
+			fnr = None
+		if isinstance(self.args.ncpu, list):
+			ncpu = self.args.ncpu[0]
+		else:
+			ncpu = 1
+		single_precision = False
+		if isinstance(self.args.precision, list):
+			if self.args.precision[0] == 'f':
+				single_precision = True
+		if fnr is None:
+			if fn is not None:
+				if fn.endswith(".fin"):
+					self.frame.filename=fn
+					self.frame.dirname=os.getcwd()
+					try:
+						RestoreInstance(self.frame)
+					except:
+						pass
+			self.nb.GetPage(4).Redirect()
+			self.ShowFrame()
+			self.MainLoop()
+		else:
+			if fnr.endswith(".fin"):
+				self.frame.filename=fnr
+				self.frame.dirname=os.getcwd()
+				try:
+					RestoreInstance(self.frame)
+				except:
+					print("Unable to execute fin file.")
+				else:
+					self.frame.Show(False)
+					self.frame.nb.GetPage(0).chkbox_amp_real.SetValue(False)
+					self.frame.nb.GetPage(0).chkbox_support.SetValue(False)
+					self.frame.nb.GetPage(0).nthreads.value.SetValue(str(abs(ncpu)))
+					self.frame.nb.GetPage(0).chkbox_precision.SetValue(single_precision)
+					self.frame.nb.GetPage(0).OnClickStart(None)
+					self.timer = wx.Timer(self.frame)
+					self.frame.Bind(wx.EVT_TIMER, self.BreakMainLoop, self.timer)
+					self.timer.Start(2000)
+				self.MainLoop()
 	def ShowFrame(self):
 		self.frame.Enable(True)
 		self.frame.Show()
+	def MainLoop(self):
+		self.app.MainLoop()
+	def BreakMainLoop(self, event):
+		if self.frame.nb.GetPage(0).pipeline_started == False:
+			self.timer.Stop()
+			self.frame.Destroy()
 if __name__ == '__main__':
 	main_app = main()

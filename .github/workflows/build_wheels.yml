@@ -28,7 +28,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-11.0, windows-2022]
+        os: [macos-13, windows-2022]
 
     steps:
       - uses: actions/checkout@v3
@@ -85,7 +85,7 @@ jobs:
       contents: write
     
     name: Build source package
-    runs-on: macos-11
+    runs-on: macos-13
     steps:
       - uses: actions/checkout@v3
 

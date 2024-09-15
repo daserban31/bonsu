@@ -1,6 +1,16 @@
 
 ## Version History
 
+#### Version 3.7.1 🗓 ️(15/09/2024)
+
+	✨ CLI for pipeline execution.
+	✨ Animate plane translation and rotation.
+	✨ View Dual-Array pipeline item.
+	🔧 Compatibility with NumPy 2.0.
+	🔧 GL canvas now optional with WX_USE_GLCANVAS env variable.
+	🔧 Minor interface improvements.
+
+
 #### Version 3.7.0 🗓 ️(23/01/2024)
 
 	✨ Revised algorithm interface using Cython.

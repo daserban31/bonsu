@@ -35,7 +35,7 @@ from wx.lib.plot.polyobjects import PlotGraphics
 class AnimateDialog(wx.Dialog):
 	def __init__(self, parent):
 		wx.Dialog.__init__(self, parent, title="Animate Scene", style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER)
-		self.SetSizeHints(450,345,-1,-1)
+		self.SetSizeHints(500,345,-1,-1)
 		self.count = 0
 		self.count_total = 0
 		self.xstep = 0
@@ -47,44 +47,106 @@ class AnimateDialog(wx.Dialog):
 		self.parent = parent
 		self.panelvisual = self.GetParent()
 		vbox = wx.BoxSizer(wx.VERTICAL)
-		sbox1 = wx.StaticBox(self, label="Rotate Scene", style=wx.SUNKEN_BORDER)
-		sboxs1 = wx.StaticBoxSizer(sbox1,wx.VERTICAL)
+		self.rbaction = wx.RadioBox(self, label="Action", choices=['Rotate Scene','Translate Origin', 'Rotate Normal', ],  majorDimension=3, style=wx.RA_SPECIFY_COLS)
+		vbox.Add(self.rbaction,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.Bind(wx.EVT_RADIOBOX, self.OnRadioSelect, self.rbaction)
+		self.vbox1 = wx.BoxSizer(wx.VERTICAL)
+		self.vbox2 = wx.BoxSizer(wx.VERTICAL)
+		self.vbox3 = wx.BoxSizer(wx.VERTICAL)
+		self.sbox1 = wx.StaticBox(self, label="Rotate Scene", style=wx.SUNKEN_BORDER)
+		sboxs1 = wx.StaticBoxSizer(self.sbox1,wx.VERTICAL)
 		sboxs1.Add((-1, 5))
-		hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-		text1 = StaticTextNew(self, label="Axis:",size=(50, 30))
-		text1.SetToolTipNew("Axis about which the scene will rotate.")
-		self.x = SpinnerObject(self,"x: ",MAX_INT_16,0,1,0,15,80)
-		self.y = SpinnerObject(self,"y: ",MAX_INT_16,0,1,0,15,80)
-		self.z = SpinnerObject(self,"z: ",MAX_INT_16,0,1,1,15,80)
-		hbox1.Add(text1 ,0, flag=wx.EXPAND|wx.RIGHT, border=10)
-		hbox1.Add(self.x ,0, flag=wx.EXPAND|wx.RIGHT, border=5)
-		hbox1.Add(self.y ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
-		hbox1.Add(self.z ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
-		sboxs1.Add(hbox1, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
-		sboxs1.Add((-1, 5))
-		hbox2 = wx.BoxSizer(wx.HORIZONTAL)
-		self.angle = SpinnerObject(self,"Angle: ",360,-360,0.1,5.0,75,80)
+		hbox01 = wx.BoxSizer(wx.HORIZONTAL)
+		text01 = StaticTextNew(self, label="Axis ratios:",size=(50, -1))
+		text01.SetToolTipNew("Axis about which the scene will rotate.")
+		self.x = SpinnerObject(self,"x: ",MAX_INT_16,0,1,0,55,45)
+		self.y = SpinnerObject(self,"y: ",MAX_INT_16,0,1,0,25,45)
+		self.z = SpinnerObject(self,"z: ",MAX_INT_16,0,1,1,25,45)
+		self.vbox1.Add(text01 ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=20)
+		hbox01.Add(self.x ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox01.Add(self.y ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox01.Add(self.z ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox1.Add(hbox01, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.vbox1.Add((-1, 5))
+		hbox02 = wx.BoxSizer(wx.HORIZONTAL)
+		self.angle = SpinnerObject(self,"Angle: ",360,-360,0.1,5.0,55,60)
 		self.angle.label.SetToolTipNew("Angle (degrees) by which the rotation is incremented.")
-		hbox2.Add(self.angle ,0, flag=wx.EXPAND|wx.RIGHT, border=5)
-		sboxs1.Add(hbox2, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
-		hbox3 = wx.BoxSizer(wx.HORIZONTAL)
-		self.steps = SpinnerObject(self,"Steps: ",MAX_INT_16,1,1,36,75,80)
-		hbox3.Add(self.steps ,0, flag=wx.EXPAND|wx.RIGHT, border=5)
-		sboxs1.Add(hbox3, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
-		sboxs1.Add((-1, 10))
+		hbox02.Add(self.angle ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox1.Add(hbox02, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		hbox03 = wx.BoxSizer(wx.HORIZONTAL)
+		self.steps = SpinnerObject(self,"Steps: ",MAX_INT_16,1,1,36,55,60)
+		hbox03.Add(self.steps ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox1.Add(hbox03, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.vbox1.Add((-1, 10))
+		hbox11 = wx.BoxSizer(wx.HORIZONTAL)
+		text10 = StaticTextNew(self, label="Origin:",size=(50, -1))
+		self.vbox2.Add(text10 ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=20)
+		oxyz = self.panelvisual.plane.GetOrigin()
+		self.ox = SpinnerObject(self,"x: ",MAX_INT_16,MIN_INT_16,1,oxyz[0],55,75)
+		self.oy = SpinnerObject(self,"y: ",MAX_INT_16,MIN_INT_16,1,oxyz[1],25,75)
+		self.oz = SpinnerObject(self,"z: ",MAX_INT_16,MIN_INT_16,1,oxyz[2],25,75)
+		hbox11.Add(self.ox ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox11.Add(self.oy ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox11.Add(self.oz ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox2.Add(hbox11, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.vbox2.Add((-1, 5))
+		hbox12 = wx.BoxSizer(wx.HORIZONTAL)
+		text11 = StaticTextNew(self, label="Step Lengths:",size=(50, -1))
+		self.vbox2.Add(text11 ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=20)
+		self.ostepx = SpinnerObject(self,"x: ",MAX_INT_16,MIN_INT_16,1,1,55,60)
+		self.ostepy = SpinnerObject(self,"y: ",MAX_INT_16,MIN_INT_16,1,1,25,60)
+		self.ostepz = SpinnerObject(self,"z: ",MAX_INT_16,MIN_INT_16,1,1,25,60)
+		hbox12.Add(self.ostepx ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox12.Add(self.ostepy ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox12.Add(self.ostepz ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox2.Add(hbox12, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.vbox2.Add((-1, 5))
+		self.osteps = SpinnerObject(self,"Steps: ",MAX_INT_16,1,1,10,55,60)
+		self.vbox2.Add(self.osteps ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox2.Add((-1, 10))
+		hbox21 = wx.BoxSizer(wx.HORIZONTAL)
+		text20 = StaticTextNew(self, label="Normal Vector:",size=(50, -1))
+		self.vbox3.Add(text20 ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=20)
+		nxyz = self.panelvisual.plane.GetNormal()
+		self.nx = SpinnerObject(self,"x: ",MAX_INT_16,MIN_INT_16,1,nxyz[0],55,75)
+		self.ny = SpinnerObject(self,"y: ",MAX_INT_16,MIN_INT_16,1,nxyz[1],25,75)
+		self.nz = SpinnerObject(self,"z: ",MAX_INT_16,MIN_INT_16,1,nxyz[2],25,75)
+		hbox21.Add(self.nx ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox21.Add(self.ny ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox21.Add(self.nz ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox3.Add(hbox21, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.vbox3.Add((-1, 5))
+		hbox22 = wx.BoxSizer(wx.HORIZONTAL)
+		text21 = StaticTextNew(self, label="Step Lengths:",size=(50, -1))
+		self.vbox3.Add(text21 ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=20)
+		self.nstepx = SpinnerObject(self,"x: ",MAX_INT_16,MIN_INT_16,0.1,0.1,55,60)
+		self.nstepy = SpinnerObject(self,"y: ",MAX_INT_16,MIN_INT_16,0.1,0,25,60)
+		self.nstepz = SpinnerObject(self,"z: ",MAX_INT_16,MIN_INT_16,0.1,0,25,60)
+		hbox22.Add(self.nstepx ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox22.Add(self.nstepy ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		hbox22.Add(self.nstepz ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox3.Add(hbox22, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		self.vbox3.Add((-1, 5))
+		self.nsteps = SpinnerObject(self,"Steps: ",MAX_INT_16,1,1,10,55,60)
+		self.vbox3.Add(self.nsteps ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=5)
+		self.vbox3.Add((-1, 10))
+		sboxs1.Add(self.vbox1, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		sboxs1.Add(self.vbox2, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		sboxs1.Add(self.vbox3, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
 		vbox.Add(sboxs1, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
-		self.delay = SpinnerObject(self,"Delay (ms): ",MAX_INT_16,0,10,0,75,80)
+		self.delay = SpinnerObject(self,"Step Delay (ms): ",MAX_INT_16,0,10,10,55,80)
 		vbox.Add((-1, 10))
 		vbox.Add(self.delay ,0, flag=wx.EXPAND|wx.RIGHT, border=5)
 		vbox.Add((-1, 10))
-		hbox4 = wx.BoxSizer(wx.HORIZONTAL)
+		hbox_chk = wx.BoxSizer(wx.HORIZONTAL)
+		hbox_chk.Add((40, -1))
 		self.chkbox_save = wx.CheckBox(self, -1, 'Save scene', size=(200, 20))
 		self.chkbox_save.SetValue(False)
-		hbox4.Add(self.chkbox_save, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=10)
-		hbox4.Add((5, -1))
+		hbox_chk.Add(self.chkbox_save, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=10)
+		hbox_chk.Add((5, -1))
 		self.filename_path = TextPanelObject(self, "Filename: ", "",80,"PNG files (*.png)|*.png|JPEG files (*.jpg)|*.jpg|PPM files (*.ppm)|*.ppm|All files (*.*)|*.*")
-		hbox4.Add(self.filename_path, 1,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=2)
-		vbox.Add(hbox4, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
+		hbox_chk.Add(self.filename_path, 1,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=2)
+		vbox.Add(hbox_chk, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
 		vbox.Add((-1, 5))
 		self.gauge = wx.Gauge(self, range=100, size=(400, 20))
 		vbox.Add(self.gauge, 1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=25)
@@ -95,7 +157,7 @@ class AnimateDialog(wx.Dialog):
 		hbox_btn.Add(button_start, 1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=0)
 		self.Bind(wx.EVT_BUTTON, self.Start, button_start)
 		hbox_btn.Add((2, -1))
-		button_stop =wx.Button(self, label="Stop", size=(120, 30))
+		button_stop = wx.Button(self, label="Stop", size=(120, 30))
 		hbox_btn.Add(button_stop, 1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=0)
 		self.Bind(wx.EVT_BUTTON, self.Stop, button_stop)
 		hbox_btn.Add((2, -1))
@@ -103,10 +165,107 @@ class AnimateDialog(wx.Dialog):
 		vbox.Add((-1, 5))
 		self.SetAutoLayout(True)
 		self.SetSizer( vbox )
+		self.OnRadioSelect(None)
 		self.Fit()
 		self.Layout()
 		self.Show()
+	def OnRadioSelect(self, event):
+		rselect = self.rbaction.GetStringSelection()
+		if rselect == 'Rotate Scene':
+			self.sbox1.SetLabelText('Rotate Scene')
+			self.vbox1.ShowItems(True)
+			self.vbox2.ShowItems(False)
+			self.vbox3.ShowItems(False)
+			self.Fit()
+			self.Layout()
+		elif rselect == 'Translate Origin':
+			self.sbox1.SetLabelText('Translate Origin')
+			self.vbox1.ShowItems(False)
+			self.vbox2.ShowItems(True)
+			self.vbox3.ShowItems(False)
+			self.Fit()
+			self.Layout()
+		elif rselect == 'Rotate Normal':
+			self.sbox1.SetLabelText('Rotate Normal')
+			self.vbox1.ShowItems(False)
+			self.vbox2.ShowItems(False)
+			self.vbox3.ShowItems(True)
+			self.Fit()
+			self.Layout()
 	def Start(self,event):
+		self.filename = os.path.splitext( self.filename_path.objectpath.GetValue() )[0]
+		rselect = self.rbaction.GetStringSelection()
+		if rselect == 'Rotate Scene':
+			self.StartRoateScene(event)
+		elif rselect == 'Translate Origin':
+			self.StartTranslate(event)
+		elif rselect == 'Rotate Normal':
+			self.StartRotateNormal(event)
+	def StartRotateNormal(self,event):
+		self.stopmotion = False
+		self.count_total = int(self.nsteps.value.GetValue())
+		if self.count >= self.count_total:
+			return
+		self.gauge.SetRange(self.count_total)
+		nxyz = self.panelvisual.plane.GetNormal()
+		nsx = float(self.nstepx.value.GetValue())
+		nsy = float(self.nstepy.value.GetValue())
+		nsz = float(self.nstepz.value.GetValue())
+		for i in range(self.count,self.count_total):
+			if self.stopmotion == False:
+				nx = nxyz[0] + nsx*(i+1)
+				ny = nxyz[1] + nsy*(i+1)
+				nz = nxyz[2] + nsz*(i+1)
+				self.panelvisual.plane.SetNormal(nx,ny,nz)
+				self.panelvisual.plane.Modified()
+				sleep(float(self.delay.value.GetValue())/1000.0)
+				self.panelvisual.RefreshScene()
+				wx.Yield()
+				if(self.chkbox_save.GetValue() == True):
+					self.SaveImg()
+				self.count = self.count +1
+				self.gauge.SetValue(self.count)
+				self.nx.value.SetValue("%f"%nx)
+				self.ny.value.SetValue("%f"%ny)
+				self.nz.value.SetValue("%f"%nz)
+			else:
+				break
+			wx.Yield()
+		self.count = 0
+		self.count_total = 0
+	def StartTranslate(self,event):
+		self.stopmotion = False
+		self.count_total = int(self.osteps.value.GetValue())
+		if self.count >= self.count_total:
+			return
+		self.gauge.SetRange(self.count_total)
+		oxyz = self.panelvisual.plane.GetOrigin()
+		osx = float(self.ostepx.value.GetValue())
+		osy = float(self.ostepy.value.GetValue())
+		osz = float(self.ostepz.value.GetValue())
+		for i in range(self.count,self.count_total):
+			if self.stopmotion == False:
+				ox = oxyz[0] + osx*(i+1)
+				oy = oxyz[1] + osy*(i+1)
+				oz = oxyz[2] + osz*(i+1)
+				self.panelvisual.plane.SetOrigin(ox,oy,oz)
+				self.panelvisual.plane.Modified()
+				sleep(float(self.delay.value.GetValue())/1000.0)
+				self.panelvisual.RefreshScene()
+				wx.Yield()
+				if(self.chkbox_save.GetValue() == True):
+					self.SaveImg()
+				self.count = self.count +1
+				self.gauge.SetValue(self.count)
+				self.ox.value.SetValue("%f"%ox)
+				self.oy.value.SetValue("%f"%oy)
+				self.oz.value.SetValue("%f"%oz)
+			else:
+				break
+			wx.Yield()
+		self.count = 0
+		self.count_total = 0
+	def StartRoateScene(self,event):
 		self.stopmotion = False
 		self.count_total = int(self.steps.value.GetValue())
 		if self.count >= self.count_total:
@@ -115,10 +274,9 @@ class AnimateDialog(wx.Dialog):
 		self.xstep = float(self.angle.value.GetValue())*float(self.x.value.GetValue())
 		self.ystep = float(self.angle.value.GetValue())*float(self.y.value.GetValue())
 		self.zstep = float(self.angle.value.GetValue())*float(self.z.value.GetValue())
-		self.filename = file_ext = os.path.splitext( self.filename_path.objectpath.GetValue() )[0]
 		for i in range(self.count,self.count_total):
 			if self.stopmotion == False:
-				self.OnTimer(None)
+				self.OnTimerRoateScene(None)
 				sleep(float(self.delay.value.GetValue())/1000.0)
 			else:
 				break
@@ -127,7 +285,7 @@ class AnimateDialog(wx.Dialog):
 		self.count_total = 0
 	def Stop(self,event):
 		self.stopmotion = True
-	def OnTimer(self, event):
+	def OnTimerRoateScene(self, event):
 		renderers = self.parent.renWin.GetRenderWindow().GetRenderers()
 		renderers.InitTraversal()
 		no_renderers = renderers.GetNumberOfItems()
@@ -139,16 +297,18 @@ class AnimateDialog(wx.Dialog):
 		self.panelvisual.RefreshScene()
 		wx.Yield()
 		if(self.chkbox_save.GetValue() == True):
-			image = vtk.vtkWindowToImageFilter()
-			image.SetInput(self.parent.renWin.GetRenderWindow())
-			image.Update()
-			writer = vtk.vtkPNGWriter()
-			countstr = str(self.count).rjust(4, "0")
-			writer.SetFileName(self.filename+countstr+".png")
-			writer.SetInputData(image.GetOutput())
-			writer.Write()
+			self.SaveImg()
 		self.count = self.count +1
 		self.gauge.SetValue(self.count)
+	def SaveImg(self):
+		image = vtk.vtkWindowToImageFilter()
+		image.SetInput(self.parent.renWin.GetRenderWindow())
+		image.Update()
+		writer = vtk.vtkPNGWriter()
+		countstr = str(self.count).rjust(4, "0")
+		writer.SetFileName(self.filename+countstr+".png")
+		writer.SetInputData(image.GetOutput())
+		writer.Write()
 class MeasureDialog(wx.Dialog):
 	def __init__(self, parent):
 		wx.Dialog.__init__(self, parent, title="Measure Scene", style=wx.DEFAULT_DIALOG_STYLE|wx.RESIZE_BORDER)
@@ -1392,6 +1552,14 @@ class ContourDialog(wx.Dialog):
 		self.contour_support.spin.SetEventFunc(self.OnContourSupport)
 		self.contour_support.value.Bind(wx.EVT_KEY_UP, self.OnContourSupportKey)
 		self.vbox.Add(self.contour_support,1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=2)
+		ivalue = float(self.panelvisual.filter_amp2.GetValue(0))
+		self.contour_amp2 = SpinnerObject(self,"Dual I:",MAX_INT,0.0,1,ivalue,50,90)
+		self.contour_amp2.label.SetToolTipNew("Dual isosurface")
+		self.contour_amp2.GetItem(self.contour_amp2.value, recursive=False).SetFlag(wx.EXPAND)
+		self.contour_amp2.GetItem(self.contour_amp2.value, recursive=False).SetProportion(1)
+		self.contour_amp2.spin.SetEventFunc(self.OnContourAmp2)
+		self.contour_amp2.value.Bind(wx.EVT_KEY_UP, self.OnContourAmp2Key)
+		self.vbox.Add(self.contour_amp2,1, flag=wx.EXPAND|wx.LEFT|wx.RIGHT, border=2)
 		self.SetAutoLayout(True)
 		self.SetSizer( self.vbox )
 		self.Fit()
@@ -1471,6 +1639,29 @@ class ContourDialog(wx.Dialog):
 			self.panelvisual.filter_support.SetValue( 0, contour)
 			self.panelvisual.filter_support.Modified()
 			self.panelvisual.filter_support.Update()
+			if event is not None:
+				event.Skip()
+				self.panelvisual.RefreshScene()
+	def OnContourAmp2Key(self, event):
+		if event.GetKeyCode() not in [wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER]:
+			event.Skip()
+		else:
+			self.OnContourAmp2(event)
+	def OnContourAmp2(self, event):
+		if self.panelvisual.filter_amp2.GetTotalNumberOfInputConnections() > 0:
+			try:
+				contour = float(self.contour_amp2.value.GetValue())
+			except:
+				return
+			if self.panelvisual.data2 is None:
+				return
+			else:
+				max = self.panelvisual.data_max2
+			if contour > max: contour = CNTR_CLIP*max;
+			if contour <= 0.0: contour = (1.0-CNTR_CLIP);
+			self.panelvisual.filter_amp2.SetValue( 0, contour)
+			self.panelvisual.filter_amp2.Modified()
+			self.panelvisual.filter_amp2.Update()
 			if event is not None:
 				event.Skip()
 				self.panelvisual.RefreshScene()
@@ -2023,7 +2214,7 @@ class LUTDialog(wx.Dialog):
 		self.panelvisual = self.GetParent()
 		self.actor_list3D = ["vtkOpenGLActor", "vtkActor", "vtkMesaActor"]
 		self.actor_list2D = ["vtkOpenGLImageActor", "vtkImageActor"]
-		self.LUTlist = [self.panelvisual.lut_amp_real, self.panelvisual.lut_phase_real, self.panelvisual.lut_amp_recip, self.panelvisual.lut_phase_recip]
+		self.LUTlist = [self.panelvisual.lut_amp_real, self.panelvisual.lut_phase_real, self.panelvisual.lut_amp_recip, self.panelvisual.lut_phase_recip, self.panelvisual.lut_support, self.panelvisual.lut_amp2]
 		self.sizer = wx.BoxSizer(wx.VERTICAL)
 		self.hbox = wx.BoxSizer(wx.HORIZONTAL)
 		self.hbox2 = wx.BoxSizer(wx.HORIZONTAL)
@@ -2031,7 +2222,7 @@ class LUTDialog(wx.Dialog):
 		self.vbox2 = wx.BoxSizer(wx.VERTICAL)
 		self.font = self.panelvisual.font
 		self.panels = []
-		self.listtitles = ["Real Amp","Real Phase", "Fourier Amp","Fourier Phase"]
+		self.listtitles = ["Real Amp","Real Phase", "Fourier Amp","Fourier Phase", "Support", "Dual Amp"]
 		self.list = wx.ListCtrl(self,wx.ID_ANY,style=wx.LC_REPORT|wx.LC_NO_HEADER|wx.LC_HRULES|wx.SUNKEN_BORDER, size=(200,-1))
 		self.list.Bind(wx.EVT_LIST_ITEM_SELECTED, self.OnSelectListItem)
 		self.list.InsertColumn(0,'Settings', width = 200)
@@ -2059,6 +2250,9 @@ class LUTDialog(wx.Dialog):
 		self.SetSizer(self.sizer)
 		self.Fit()
 		self.Layout()
+	def OnExit(self,event):
+		del self.panelvisual.LUTdialog
+		self.Destroy()
 	def GetRadioChoice(self, idx):
 		choice = self.panelphase.cmls[idx][0]
 		reverse = self.panelphase.cmls[idx][1]
@@ -2165,7 +2359,9 @@ class PanelVisual(wx.Panel,wx.App):
 		self.vtk_coordarray = None
 		self.vtk_points = None
 		self.data = None
+		self.data2 = None
 		self.data_max = 0.0
+		self.data_max2 = 0.0
 		self.data_max_recip = 0.0
 		self.data_max_support = 1.0
 		self.FXAA = False
@@ -2181,6 +2377,7 @@ class PanelVisual(wx.Panel,wx.App):
 		self.image_amp_recip = vtk.vtkImageData()
 		self.image_phase_recip = vtk.vtkImageData()
 		self.image_support = vtk.vtkImageData()
+		self.image_amp2 = vtk.vtkImageData()
 		self.image_amp_real_vtk = None
 		self.image_phase_real_vtk = None
 		self.measure_data = [None, [None, None], None, [None,None,None]]
@@ -2199,6 +2396,10 @@ class PanelVisual(wx.Panel,wx.App):
 		self.lut_phase_recip = vtk.vtkLookupTable()
 		self.scalebar_amp_recip=vtk.vtkScalarBarActor()
 		self.scalebar_phase_recip=vtk.vtkScalarBarActor()
+		self.lut_support = vtk.vtkLookupTable()
+		self.lut_amp2 = vtk.vtkLookupTable()
+		self.scalebar_support=vtk.vtkScalarBarActor()
+		self.scalebar_amp2=vtk.vtkScalarBarActor()
 		self.scalebar_amp_real.SetWidth(0.07)
 		self.scalebar_amp_real.SetHeight(0.8)
 		self.scalebar_amp_real.SetPosition(0.01,0.1)
@@ -2211,6 +2412,12 @@ class PanelVisual(wx.Panel,wx.App):
 		self.scalebar_phase_recip.SetWidth(0.07)
 		self.scalebar_phase_recip.SetHeight(0.80)
 		self.scalebar_phase_recip.SetPosition(0.01,0.1)
+		self.scalebar_support.SetWidth(0.07)
+		self.scalebar_support.SetHeight(0.80)
+		self.scalebar_support.SetPosition(0.01,0.1)
+		self.scalebar_amp2.SetWidth(0.07)
+		self.scalebar_amp2.SetHeight(0.80)
+		self.scalebar_amp2.SetPosition(0.01,0.1)
 		self.scalebar_amp_real.SetOrientationToVertical()
 		self.scalebar_phase_real.SetOrientationToVertical()
 		self.scalebar_amp_recip.SetOrientationToVertical()
@@ -2227,6 +2434,7 @@ class PanelVisual(wx.Panel,wx.App):
 		self.filter_amp_real = vtk.vtkContourFilter()
 		self.filter_amp_recip = vtk.vtkContourFilter()
 		self.filter_support = vtk.vtkContourFilter()
+		self.filter_amp2 = vtk.vtkContourFilter()
 		self.filter_amp_real.AddObserver(vtk.vtkCommand.ErrorEvent, self.SmoothFilterObserver)
 		self.filter_amp_recip.AddObserver(vtk.vtkCommand.ErrorEvent, self.SmoothFilterObserver)
 		self.filter_support.AddObserver(vtk.vtkCommand.ErrorEvent, self.SmoothFilterObserver)
@@ -2669,6 +2877,7 @@ class PanelVisual(wx.Panel,wx.App):
 			self.LUTdialog
 		except AttributeError:
 			self.LUTdialog = LUTDialog(self)
+			self.LUTdialog.Show()
 		else:
 			self.LUTdialog.Show()
 	def OnScalebarSelect(self, event):

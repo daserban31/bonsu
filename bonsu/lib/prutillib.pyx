@@ -64,7 +64,7 @@ cdef inline double div0chk(double a, double b) noexcept nogil:
 		return a/b
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef inline void idx2ijk(cnumpy.int64_t idx, cnumpy.int_t[:] dims, cnumpy.int_t[:] ijk) noexcept nogil:
+cdef inline void idx2ijk(cnumpy.int64_t idx, cnumpy.int64_t[:] dims, cnumpy.int64_t[:] ijk) noexcept nogil:
 	ijk[2] = idx % dims[2]
 	ijk[1] = ((idx - ijk[2])//dims[2]) % dims[1]
 	ijk[0] = ((idx - ijk[2])//dims[2]) // dims[1]
@@ -252,9 +252,9 @@ cpdef fft(f_csd_t[:, :, ::1] ar_in, int direction, int nthreads):
 		_fft(ar_in, plan, direction)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cdef void _wrap_nomem(f_sdp_t ar_in, f_sdp_t ar_tmp, cnumpy.int_t[:] split,
-						cnumpy.int_t[:] nnh, cnumpy.int_t[:] c, cnumpy.int_t[:] cn, cnumpy.int_t[:] ijk,
-						cnumpy.int_t[:] ijks, cnumpy.int_t[:] shape, int drctn) noexcept nogil:
+cdef void _wrap_nomem(f_sdp_t ar_in, f_sdp_t ar_tmp, cnumpy.int64_t[:] split,
+						cnumpy.int64_t[:] nnh, cnumpy.int64_t[:] c, cnumpy.int64_t[:] cn, cnumpy.int64_t[:] ijk,
+						cnumpy.int64_t[:] ijks, cnumpy.int64_t[:] shape, int drctn) noexcept nogil:
 	cdef cnumpy.int64_t lenh = 0
 	cdef cnumpy.int64_t qd = 0
 	cdef cnumpy.int64_t i = 0
@@ -302,7 +302,7 @@ cdef void _wrap_nomem(f_sdp_t ar_in, f_sdp_t ar_tmp, cnumpy.int_t[:] split,
 			ar_in[2*iish+1] = ar_tmp[2*ii+1]
 cpdef wrap_nomem(f_csd_t[:, :, ::1] ar_in, f_csd_t[:, :, ::1] ar_tmp, int drctn):
 	cdef int size = ar_in.size
-	cdef cnumpy.int_t[:] split, nnh, c, cn, ijk, ijks, shape
+	cdef cnumpy.int64_t[:] split, nnh, c, cn, ijk, ijks, shape
 	shape = numpy.array([ar_in.shape[0], ar_in.shape[1], ar_in.shape[2]], dtype=numpy.int_)
 	split = numpy.zeros((3), dtype=numpy.int_)
 	nnh = numpy.zeros((3), dtype=numpy.int_)

@@ -62,10 +62,17 @@ class PanelStdOut(wx.Panel):
 		self.hbox_btn.Add(self.button_clear)
 		self.vbox.Add(self.hbox_btn, 0, wx.EXPAND)
 		self.SetSizerAndFit(self.vbox)
-		self.redir=RedirectText(self.log)
-		sys.stdout=self.redir
 		self.data_poll_timer = wx.Timer(self)
 		self.Bind(wx.EVT_TIMER, self.UpdateLog, self.data_poll_timer)
+	def Redirect(self):
+		self.redir=RedirectText(self.log)
+		sys.stdout=self.redir
+		sys.stderr.flush()
+		stderr2 = os.dup(sys.stderr.fileno())
+		fd = os.open(os.devnull, os.O_WRONLY)
+		os.dup2(fd, sys.stderr.fileno())
+		os.close(fd)
+		sys.stderr = os.fdopen(stderr2, 'w')
 	def UpdateLog(self,event):
 		try:
 			while not self.ancestor.GetPage(0).queue_info.empty():

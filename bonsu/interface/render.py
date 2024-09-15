@@ -23,13 +23,14 @@ import wx
 import vtk
 baseClass = wx.Window
 if wx.Platform == "__WXGTK__":
-	import wx.glcanvas
-	try:
-		wx.glcanvas.GLAttributes()
-	except:
-		pass
-	else:
-		baseClass = wx.glcanvas.GLCanvas
+	if os.getenv('WX_USE_GLCANVAS', False):
+		import wx.glcanvas
+		try:
+			wx.glcanvas.GLAttributes()
+		except:
+			pass
+		else:
+			baseClass = wx.glcanvas.GLCanvas
 _useCapture = (wx.Platform == "__WXMSW__")
 class EventTimer(wx.Timer):
 	def __init__(self, iren):
