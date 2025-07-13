@@ -2,7 +2,7 @@
 #############################################
 ##   Filename: prutillib.pyx
 ##
-##    Copyright (C) 2011 - 2024 Marcus C. Newton
+##    Copyright (C) 2011 - 2025 Marcus C. Newton
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ from libc.stdlib cimport qsort
 from libc.stdlib cimport abort, malloc, free
 from cython.parallel import prange, parallel
 from cpython.pycapsule cimport PyCapsule_GetPointer, PyCapsule_IsValid
-from .fftwlib cimport FFTWPlan, FFTW_MEASURE
+from .fftwlib cimport FFTWPlan, FFTW_MEASURE, FFTW_ESTIMATE
 from .fftwlib cimport FFTW_TORECIP, FFTW_TOREAL
 from .fftwlib cimport _fftw_create_plan, _fftwf_create_plan
 from .fftwlib cimport _fftw_create_plan_pair, _fftwf_create_plan_pair
@@ -226,9 +226,9 @@ cdef void _convolve_ntmp(f_csd_t[:, :, ::1] ar_in1, f_csd_t[:, :, ::1] ar_in2,\
 cpdef convolve_ntmp(f_csd_t[:, :, ::1] ar_in1, f_csd_t[:, :, ::1] ar_in2, int nthreads):
 	cdef FFTWPlan *plan
 	if f_csd_t is cdouble:
-		plan = _fftw_create_plan(ar_in1, nthreads, FFTW_MEASURE)
+		plan = _fftw_create_plan(ar_in1, nthreads, FFTW_ESTIMATE)
 	elif f_csd_t is csingle:
-		plan = _fftwf_create_plan(ar_in1, nthreads, FFTW_MEASURE)
+		plan = _fftwf_create_plan(ar_in1, nthreads, FFTW_ESTIMATE)
 	else:
 		raise TypeError()
 	with nogil:
@@ -243,9 +243,9 @@ cdef void _fft(f_csd_t[:, :, ::1] ar_in, FFTWPlan* plan, int direction) noexcept
 cpdef fft(f_csd_t[:, :, ::1] ar_in, int direction, int nthreads):
 	cdef FFTWPlan *plan
 	if f_csd_t is cdouble:
-		plan = _fftw_create_plan(ar_in, nthreads, FFTW_MEASURE)
+		plan = _fftw_create_plan(ar_in, nthreads, FFTW_ESTIMATE)
 	elif f_csd_t is csingle:
-		plan = _fftwf_create_plan(ar_in, nthreads, FFTW_MEASURE)
+		plan = _fftwf_create_plan(ar_in, nthreads, FFTW_ESTIMATE)
 	else:
 		raise TypeError()
 	with nogil:

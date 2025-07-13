@@ -1,7 +1,7 @@
 #############################################
 ##   Filename: subpanel.py
 ##
-##    Copyright (C) 2011 - 2024 Marcus C. Newton
+##    Copyright (C) 2011 - 2025 Marcus C. Newton
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -3749,6 +3749,7 @@ class SubPanel_ShrinkWrap(wx.ScrolledWindow):
 			,'SO2D'\
 			],  majorDimension=5, style=wx.RA_SPECIFY_COLS)
 		self.rbrs.SetToolTipNew("Select an algorithm for the shrink wrap to use.")
+		self.rbrs.SetSelection(1)
 		self.vbox.Add(self.rbrs ,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
 		self.Bind(wx.EVT_RADIOBOX, self.OnRadioSelect, self.rbrs)
 		self.vboxPCHIO = wx.BoxSizer(wx.VERTICAL)

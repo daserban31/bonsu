@@ -2,7 +2,7 @@
 #############################################
 ##   Filename: prepare.py
 ##
-##    Copyright (C) 2011 - 2024 Marcus C. Newton
+##    Copyright (C) 2011 - 2025 Marcus C. Newton
 ##
 ## This program is free software: you can redistribute it and/or modify
 ## it under the terms of the GNU General Public License as published by
@@ -41,16 +41,23 @@ zf = ZipFile(f)
 zf.extractall(path = FFTWPATH)
 zf.close()
 
-# os.system("echo %cd%")
-# os.system("dir")
+cmd = ["where", "/r", r"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC", "lib.exe"]
+process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,stdin=subprocess.PIPE, close_fds=False)
+libstr, liberr = process.communicate()
 
-# cmd = ["where", "/r", r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise", "lib.exe"]
-# process = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,stdin=subprocess.PIPE, close_fds=False)
-# print(process.communicate())
+#print(libstr)
+#print(liberr)
 
-#lib = r"C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Tools\MSVC\14.29.30133\bin\Hostx64\x64\lib.exe"
-#lib = r"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.38.33130\bin\Hostx64\x64\lib.exe"
-lib = r"C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.41.34120\bin\Hostx64\x64\lib.exe"
+liblist = libstr.decode("utf-8").splitlines()
+newliblist = []
+
+for l in liblist:
+	if ("lib.exe" in l) and ("x64" in l) and ("arm" not in l):
+		newliblist.append(l)
+
+lib = newliblist[-1]
+
+print(lib)
 
 wcmd = [lib, "/machine:x64", "/def:"+os.path.join(FFTWPATH, "libfftw3-3.def")]
 

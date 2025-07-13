@@ -1,7 +1,7 @@
 ![Build Status](https://github.com/bonsudev/bonsu/actions/workflows/build_wheels.yml/badge.svg) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0) ![Python Versions](https://img.shields.io/badge/Python-3-brightgreen?logo=python&logoColor=white) ![PyPI](https://img.shields.io/pypi/v/bonsu) ![PyPI - Wheel](https://img.shields.io/pypi/wheel/bonsu)
 
 
-# <img src="/bonsu/image/bonsu.ico" alt= "" width="64" height="64"> Bonsu - The Interactive Phase Retrieval Suite
+# <img src="https://github.com/bonsudev/bonsu/raw/refs/heads/master/bonsu/image/bonsu.ico" alt= "" width="64" height="64"> Bonsu - The Interactive Phase Retrieval Suite
 
 ## Introduction
 
@@ -42,16 +42,16 @@ or visit: http://github.com/bonsudev/bonsu
 ## Documentation
 
 Online documentation is available [here](https://bonsudev.github.io/bonsu/) and includes installation instructions.
-A PDF version of the documentation is available [here](/bonsu/docs/Bonsu.pdf).
+A PDF version of the documentation is available [here](https://github.com/bonsudev/bonsu/blob/master/bonsu/docs/Bonsu.pdf).
 Documentation is also available in the application. 
 
 ## Version History
 
-Please see the [change log](bonsu/changelog/CHANGELOG.md).
+Please see the [change log](https://github.com/bonsudev/bonsu/blob/master/bonsu/changelog/CHANGELOG.md).
 
 
 ## Licence
 
 GNU GPLv3
-Copyright 2011 - 2024 - Marcus C. Newton
+Copyright 2011 - 2025 - Marcus C. Newton
 Registration number 284653218

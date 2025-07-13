@@ -1,6 +1,11 @@
 
 ## Version History
 
+#### Version 3.7.2 🗓 ️(13/07/2025)
+
+	🔧 Minor bug fixes.
+
+
 #### Version 3.7.1 🗓 ️(15/09/2024)
 
 	✨ CLI for pipeline execution.
