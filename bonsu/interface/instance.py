@@ -373,6 +373,22 @@ def GetInstanceObject(panelphase, i):
 		object.append( panelphase.pipelineitems[i].feature_angle.value.GetValue() )
 		object.append( panelphase.pipelineitems[i].axes_fontfactor.value.GetValue() )
 		object.append( panelphase.pipelineitems[i].meshsubiter.value.GetValue() )
+	if subpanelname == 'View Chopped':
+		object.append(panelphase.pipelineitems[i].input_filename.objectpath.GetValue())
+		object.append(panelphase.pipelineitems[i].coords_filename.objectpath.GetValue())
+		object.append(panelphase.pipelineitems[i].contour.value.GetValue())
+		object.append(panelphase.pipelineitems[i].opacity.value.GetValue())
+		object.append(panelphase.pipelineitems[i].phasemax.value.GetValue())
+		object.append(panelphase.pipelineitems[i].phasemin.value.GetValue())
+		object.append(panelphase.pipelineitems[i].number_of_slices.value.GetValue())
+		object.append(panelphase.pipelineitems[i].theta.value.GetValue())
+		object.append(panelphase.pipelineitems[i].psi.value.GetValue())
+		object.append(panelphase.pipelineitems[i].separation.value.GetValue())
+		object.append(panelphase.pipelineitems[i].thickness.value.GetValue())
+		object.append(panelphase.pipelineitems[i].chkbox_axes.GetValue())
+		object.append(panelphase.pipelineitems[i].feature_angle.value.GetValue())
+		object.append(panelphase.pipelineitems[i].axes_fontfactor.value.GetValue())
+		object.append(panelphase.pipelineitems[i].meshsubiter.value.GetValue())
 	if subpanelname == 'View VTK Array':
 		object.append( panelphase.pipelineitems[i].input_filename.objectpath.GetValue() )
 		object.append( panelphase.pipelineitems[i].rbampphase.GetStringSelection() )
@@ -1092,6 +1108,32 @@ def SetInstanceObject(panelphase, instance, idx, subpanel_items):
 			except:
 				pass
 			panelphase.pipelineitems[idx].OnRadioSelect(None)
+			DoListCheck(panelphase, object, idx)
+		if subpanelname == 'View Chopped':
+			panelphase.pipelineitems.insert(idx, SubPanel_ViewChopped(panelphase.panel2, panelphase.ancestor))
+			panelphase.pipelineitems[idx].Hide()
+			panelphase.hbox2.Add(panelphase.pipelineitems[idx], 2, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=10)
+			panelphase.pipelineitems[idx].input_filename.objectpath.SetValue(object[0])
+			panelphase.pipelineitems[idx].coords_filename.objectpath.SetValue(object[1])
+			panelphase.pipelineitems[idx].contour.value.SetValue(object[2])
+			panelphase.pipelineitems[idx].opacity.value.SetValue(object[3])
+			panelphase.pipelineitems[idx].phasemax.value.SetValue(object[4])
+			panelphase.pipelineitems[idx].phasemin.value.SetValue(object[5])
+			panelphase.pipelineitems[idx].number_of_slices.value.SetValue(object[6])
+			panelphase.pipelineitems[idx].theta.value.SetValue(object[7])
+			panelphase.pipelineitems[idx].psi.value.SetValue(object[8])
+			panelphase.pipelineitems[idx].separation.value.SetValue(object[9])
+			panelphase.pipelineitems[idx].thickness.value.SetValue(object[10])
+			panelphase.pipelineitems[idx].chkbox_axes.SetValue(object[11])
+			try:
+				panelphase.pipelineitems[idx].feature_angle.value.SetValue(object[12])
+				panelphase.pipelineitems[idx].axes_fontfactor.value.SetValue(object[13])
+			except Exception as e:
+				print(f'While loading View Chopped, particularly FA and axes FF, {type(e)} - {e}')
+			try:
+				panelphase.pipelineitems[idx].meshsubiter.value.SetValue(object[14])
+			except Exception as e:
+				print(f'While loading View Chopped, particularly meshubiter, {type(e)} - {e}')
 			DoListCheck(panelphase, object, idx)
 		if subpanelname == 'View VTK Array':
 			panelphase.pipelineitems.insert(idx, SubPanel_View_VTK(panelphase.panel2, panelphase.ancestor))

@@ -33,6 +33,7 @@ import threading
 from time import sleep
 from wx.lib.plot.plotcanvas import PlotCanvas, PolyMarker, PolyLine
 from wx.lib.plot.polyobjects import PlotGraphics
+from .ViewChoppedAdditions import SubPanel_ViewChopped
 class ContextSup:
 	def __enter__(self):
 		pass

@@ -34,6 +34,7 @@ from ..operations.loadarray import LoadArray
 from ..operations.loadarray import SaveArray
 from ..operations.loadarray import ArTo3DNpy
 from ..operations.loadarray import LoadCoordsArray
+from .ViewChoppedAdditions import Sequence_ViewChopped
 def Sequence_PyScript(\
 	self,
 	pipelineitem

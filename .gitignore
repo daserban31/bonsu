@@ -1,0 +1,4 @@
+*__pycache__*
+*.spyproject*
+__init__.py
+notes.txt
