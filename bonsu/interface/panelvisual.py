@@ -2191,6 +2191,8 @@ class LightDialog(wx.Dialog):
 		self.panelvisual.actor_phase_real.GetProperty().SetSpecular(value)
 		self.panelvisual.actor_amp_recip.GetProperty().SetSpecular(value)
 		self.panelvisual.actor_phase_recip.GetProperty().SetSpecular(value)
+		for actor in self.panelvisual.actors:
+			actor.GetProperty().SetSpecular(value)
 		self.panelvisual.RefreshScene()
 	def OnSpecularpowerKey(self, event):
 		if event.GetKeyCode() not in [wx.WXK_RETURN, wx.WXK_NUMPAD_ENTER]:
@@ -2203,6 +2205,8 @@ class LightDialog(wx.Dialog):
 		self.panelvisual.actor_phase_real.GetProperty().SetSpecularPower(value)
 		self.panelvisual.actor_amp_recip.GetProperty().SetSpecularPower(value)
 		self.panelvisual.actor_phase_recip.GetProperty().SetSpecularPower(value)
+		for actor in self.panelvisual.actors:
+			actor.GetProperty().SetSpecularPower(value)
 		self.panelvisual.RefreshScene()
 class LUTDialog(wx.Dialog):
 	def __init__(self, parent):
@@ -2478,6 +2482,7 @@ class PanelVisual(wx.Panel,wx.App):
 		self.mapper_phase_recip = vtk.vtkPolyDataMapper()
 		self.mapper_support = vtk.vtkPolyDataMapper()
 		self.textMapper_amp_real = vtk.vtkTextMapper()
+		self.actors: list[vtk.vtkActor] = []
 		self.actor_amp_real = vtk.vtkActor()
 		self.actor_amp_real2 = vtk.vtkActor()
 		self.actor_phase_real = vtk.vtkActor()
