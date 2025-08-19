@@ -36,6 +36,7 @@ def Sequence_ViewChopped(self, ancestor):
     RSVC.setup_vtk_data()
     RSVC.draw_colourbar()
     RSVC.get_source_geometry()
+    RSVC.calculate_meshmaxedge()
     RSVC.create_slabs()
     RSVC.finalise_rendering()
     return None
@@ -180,6 +181,9 @@ class Refactored_Sequence_ViewChopped():
             SetScalars(self._panelvisual.vtk_data_array_phase)
         self._panelvisual.object_phase.SetDimensions(self._data_shp)
         self._panelvisual.object_phase.Modified()
+        return None
+
+    def calculate_meshmaxedge(self) -> None:
         objectnpoints = self._panelvisual.flat_data_phase.size
         objectbounds = self._panelvisual.object_amp.GetBounds()
         density = (objectbounds[1] - objectbounds[0]) * \
@@ -432,6 +436,7 @@ class Refactored_Sequence_ViewChopped():
         return (amp_actors, phase_actors)
 
     def create_slabs(self) -> None:
+        self._panelvisual.clearActors()
         number_of_slices: int = \
             int(self._sequence.number_of_slices.value.GetValue())
         thickness: float = \

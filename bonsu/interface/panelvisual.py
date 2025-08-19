@@ -2690,6 +2690,8 @@ class PanelVisual(wx.Panel,wx.App):
 		self.Show()
 		self.InitRender()
 		self.ancestor.GetParent().Refresh()
+	def clearActors(self):
+		self.actors = []
 	def EnablePanelPhase(self, enable=True):
 		if enable==True:
 			self.nblock_dialogs -= 1
