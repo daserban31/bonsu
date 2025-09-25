@@ -1862,7 +1862,7 @@ class KeyDialog(wx.Dialog):
 		self.Refresh()
 		self.Layout()
 	def _UpdateImage(self,imagedata):
-		cm = self.parent.panelphase.cms[65][1]
+		cm = self.parent.panelphase.cms[63][1]
 		imagedata[imagedata < 1e-6] = 1.0
 		imagedata = numpy.log(imagedata)
 		imagedata = imagedata - imagedata.min()
