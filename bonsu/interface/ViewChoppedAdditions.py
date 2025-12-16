@@ -81,11 +81,6 @@ class SubPanel_ViewChopped(wx.ScrolledWindow):
         self.hbox1.Add(self.contour, 0,
                        flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=2)
         self.hbox1.Add((5, -1))
-        self.opacity: SpinnerObject = \
-            SpinnerObject(self, "Opacity: ", 1.0, 0.0, 0.1, 0.5, 75, 80)
-        self.opacity.SetToolTip("Opacity of isosurface")
-        self.hbox1.Add(self.opacity, 0,
-                       flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=2)
         self.sboxs1.Add(self.hbox1, 0,
                         flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP, border=2)
         self.feature_angle: SpinnerObject = \
