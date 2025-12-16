@@ -210,22 +210,12 @@ class SubPanel_ViewChopped(wx.ScrolledWindow):
 
     def OnPlaneSpin(self, event) -> None:
         """Update the visualisation when params change."""
-        thickness: float = float(self.thickness.value.GetValue())
-        separation: float = float(self.separation.value.GetValue())
-        theta: float = float(self.theta.value.GetValue())
-        psi: float = float(self.psi.value.GetValue())
         from ..sequences.ViewChoppedAdditions import \
             Refactored_Sequence_ViewChopped
         RSVC: Refactored_Sequence_ViewChopped = \
             Refactored_Sequence_ViewChopped(self, self.ancestor)
-        # RSVC.obtain_data_and_coords_filenames()
         RSVC.obtain_background()
-        # RSVC.load_data()
         RSVC.obtain_slicing_parameters()
-        # RSVC.report_progress()
-        # RSVC.setup_vtk_data()
-        # RSVC.draw_colourbar()
-        # RSVC.get_source_geometry()
         RSVC.calculate_meshmaxedge()
         RSVC.create_slabs()
         RSVC.finalise_rendering()

@@ -339,27 +339,12 @@ class Refactored_Sequence_ViewChopped():
             amp_actor.GetProperty().SetOpacity(amp_mapper_index)
             amp_actor.SetMapper(amp_mappers[amp_actor_index])
         # Something similar for phase.
-        filter_plane: vtk.vtkContourFilter = vtk.vtkContourFilter()
-        filter_plane.SetInputData(self._panelvisual.object_amp)
-        filter_plane.ComputeNormalsOn()
-        filter_plane.ComputeScalarsOn()
-        filter_plane.SetNumberOfContours(1)
-        filter_plane.SetValue(0, float(self._contour))
-        filter_plane.Modified()
-        filter_plane.Update()
-        smooth_plane: vtk.vtkSmoothPolyDataFilter = \
-            vtk.vtkSmoothPolyDataFilter()
-        smooth_plane.SetInputConnection(filter_plane.GetOutputPort())
-        smooth_plane.SetNumberOfIterations(15)
-        smooth_plane.SetRelaxationFactor(0.1)
-        smooth_plane.FeatureEdgeSmoothingOff()
-        smooth_plane.BoundarySmoothingOn()
-        smooth_plane.Modified()
-        smooth_plane.Update()
+        source_geometry_for_slices = self._panelvisual.smooth_filter_real
         cutters: list[vtk.vtkCutter] = [vtk.vtkCutter(), vtk.vtkCutter()]
         filter_tris: list[vtk.vtkContourTriangulator] = []
         for cutter_index, cutter in enumerate(cutters):
-            cutter.SetInputConnection(smooth_plane.GetOutputPort())
+            cutter.SetInputConnection(
+                source_geometry_for_slices.GetOutputPort())
             cutter.SetCutFunction(slicing_planes[cutter_index])
             cutter.GenerateTrianglesOn()
             cutter.Update()
