@@ -435,10 +435,44 @@ class Refactored_Sequence_ViewChopped():
             actor.SetMapper(phase_mappers[actor_index])
         return (amp_actors, phase_actors)
 
+    def _calculate_number_of_slices(self) -> int:
+        try:
+            # Isolate the object voxels
+            contour_val: float = float(
+                self._sequence.contour.value.GetValue())
+            flat_abs_data: numpy.ndarray = (
+                numpy.abs(self._panelvisual.data)).transpose(2, 1, 0). \
+                flatten()
+            object_mask: numpy.ndarray = flat_abs_data >= contour_val
+            # Get the coordinates of just the object
+            object_coords = self._panelvisual.coords[object_mask]
+            if object_coords.shape[0] == 0:
+                print(
+                    ''.join(("Warning: No object found above the contour thres",
+                             "hold. Defaulting to 20 slices.")))
+                return 20
+            # Project the coordinates onto the slicing normal vector
+            projected_distances: numpy.ndarray = numpy.dot(
+                object_coords, self._slicing_plane_normal)
+            # Find the total extent of the object along this direction
+            min_projection: float = numpy.min(projected_distances)
+            max_projection: float = numpy.max(projected_distances)
+            projected_extent = max_projection - min_projection
+            # Calculate the number of slices
+            thickness = float(self._sequence.thickness.value.GetValue())
+            if thickness <= 0:
+                return 20  # Avoid division by zero
+            num_slices = projected_extent // thickness + 1
+            # Add a margin of 2 slices (one on each side)
+            num_slices_with_margin = num_slices + 2
+            return int(num_slices_with_margin)
+        except Exception as e:
+            print(f"Error in calculate_number_of_slices: {e}")
+            return 20
+
     def create_slabs(self) -> None:
         self._panelvisual.clearActors()
-        number_of_slices: int = \
-            int(self._sequence.number_of_slices.value.GetValue())
+        number_of_slices: int = self._calculate_number_of_slices()
         thickness: float = \
             float(self._sequence.thickness.value.GetValue())
         separation: float = float(self._sequence.separation.value.GetValue())
