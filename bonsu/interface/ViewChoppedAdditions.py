@@ -123,9 +123,6 @@ class SubPanel_ViewChopped(wx.ScrolledWindow):
         self.sboxs4: wx.StaticBoxSizer = \
             wx.StaticBoxSizer(self.sbox4, wx.VERTICAL)
         self.hbox4 = wx.BoxSizer(wx.HORIZONTAL)
-        self.number_of_slices: SpinnerObject = \
-            SpinnerObject(self, "No. of Slices: ", MAX_INT_16, MIN_INT_16, 1,
-                          100, 15, 60)
         self.theta: SpinnerObject = \
             SpinnerObject(self, "Polar \u0398 (deg): ", MAX_INT_16,
                           MIN_INT_16, 1, 0, 15, 60)
@@ -138,8 +135,6 @@ class SubPanel_ViewChopped(wx.ScrolledWindow):
         self.thickness: SpinnerObject = \
             SpinnerObject(self, 'Thickness (nm)', MAX_INT_16, MIN_INT_16, 50,
                           200, 15, 60)
-        self.hbox4.Add(self.number_of_slices, 0, flag=wx.EXPAND | wx.RIGHT,
-                       border=5)
         self.hbox4.Add(self.theta, 0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT,
                        border=5)
         self.hbox4.Add(self.psi, 0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT,
@@ -156,12 +151,10 @@ class SubPanel_ViewChopped(wx.ScrolledWindow):
         vbox.Add((-1, 5))
         vbox.Add(self.sboxs4, 0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP,
                  border=2)
-        self.number_of_slices.spin.SetEventFunc(self.OnPlaneSpin)
         self.separation.spin.SetEventFunc(self.OnPlaneSpin)
         self.thickness.spin.SetEventFunc(self.OnPlaneSpin)
         self.theta.spin.SetEventFunc(self.OnPlaneSpin)
         self.psi.spin.SetEventFunc(self.OnPlaneSpin)
-        self.number_of_slices.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
         self.separation.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
         self.thickness.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
         self.theta.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
@@ -217,7 +210,6 @@ class SubPanel_ViewChopped(wx.ScrolledWindow):
 
     def OnPlaneSpin(self, event) -> None:
         """Update the visualisation when params change."""
-        number_of_slices: float = float(self.number_of_slices.value.GetValue())
         thickness: float = float(self.thickness.value.GetValue())
         separation: float = float(self.separation.value.GetValue())
         theta: float = float(self.theta.value.GetValue())
