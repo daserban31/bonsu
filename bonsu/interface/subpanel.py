@@ -4408,7 +4408,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 		self.coords_filename = TextPanelObject(self, "Co-ord's file: ", "",100,'*.npy')
 		vbox.Add(self.coords_filename, 0,  flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
 		vbox.Add((-1, 5))
-		self.rbampphase = wx.RadioBox(self, label="Type", choices=['Amplitude','Phase', 'Amplitude and Phase', 'Amplitude with Phase', 'Amplitude (cut plane)','Amplitude Clipped Phase', 'Amplitude q-Colour'],  majorDimension=2, style=wx.RA_SPECIFY_COLS)
+		self.rbampphase = wx.RadioBox(self, label="Type", choices=['Amplitude','Phase', 'Amplitude and Phase', 'Amplitude with Phase', 'Amplitude (cut plane)','Amplitude Clipped Phase', 'Amplitude q-Colour', 'Euler Slice'],  majorDimension=2, style=wx.RA_SPECIFY_COLS)
 		vbox.Add(self.rbampphase,0, flag=wx.EXPAND|wx.LEFT|wx.RIGHT|wx.TOP, border=2)
 		self.Bind(wx.EVT_RADIOBOX, self.OnRadioSelect, self.rbampphase)
 		vbox.Add((-1, 10))
@@ -4476,6 +4476,29 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 		self.oy.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
 		self.oz.spin.SetEventFunc(self.OnPlaneSpin)
 		self.oz.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
+
+		self.sboxEuler = wx.StaticBox(
+			self, label='Normal to cut plane ', style=wx.BORDER_DEFAULT)
+		self.sboxsEuler = wx.StaticBoxSizer(self.sboxEuler, wx.VERTICAL)
+		self.hboxEuler = wx.BoxSizer(wx.HORIZONTAL)
+		self.ntheta = SpinnerObject(
+ 			self, 'theta: ', MAX_INT_16, MIN_INT_16, 5, 0, 35, 80)
+		self.npsi = SpinnerObject(
+ 			self, 'psi: ', MAX_INT_16, MIN_INT_16, 5, 0, 35, 80)
+		self.hboxEuler.Add(self.ntheta, 0, flag=wx.EXPAND | wx.RIGHT, border=5)
+		self.hboxEuler.Add(
+ 			self.npsi, 0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT, border=5)
+		self.sboxsEuler.Add(
+            self.hboxEuler, 0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP,
+ 			border=2)
+		vbox.Add(
+ 			self.sboxsEuler, 0, flag=wx.EXPAND | wx.LEFT | wx.RIGHT | wx.TOP,
+ 			border=5)
+		self.ntheta.spin.SetEventFunc(self.OnPlaneSpin)
+		self.npsi.spin.SetEventFunc(self.OnPlaneSpin)
+		self.ntheta.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
+		self.npsi.value.Bind(wx.EVT_KEY_DOWN, self.OnPlaneKey)
+
 		vbox.Add((-1, 5))
 		self.hbox5 = wx.BoxSizer(wx.HORIZONTAL)
 		self.meshsubiter = SpinnerObject(self,"Clipped mesh iterations: ",MAX_INT_16,1,1,5,120,120)
@@ -4503,9 +4526,17 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 		Sequence_View_Object(self, self.ancestor)
 		self.ancestor.GetPage(4).data_poll_timer.Start(1000)
 	def OnPlaneSpin(self,event):
-		nx = float(self.nx.value.GetValue())
-		ny = float(self.ny.value.GetValue())
-		nz = float(self.nz.value.GetValue())
+		rselect = self.rbampphase.GetStringSelection()
+		if rselect == 'Amplitude Clipped Phase':
+			nx = float(self.nx.value.GetValue())
+			ny = float(self.ny.value.GetValue())
+			nz = float(self.nz.value.GetValue())
+		else:
+			ntheta = float(self.ntheta.value.GetValue())
+			npsi = float(self.npsi.value.GetValue())
+			nz = numpy.cos(numpy.deg2rad(npsi))
+			nx = numpy.sin(numpy.deg2rad(npsi))*numpy.cos(numpy.deg2rad(ntheta))
+			ny = numpy.sin(numpy.deg2rad(npsi))*numpy.sin(numpy.deg2rad(ntheta))
 		ox = float(self.ox.value.GetValue())
 		oy = float(self.oy.value.GetValue())
 		oz = float(self.oz.value.GetValue())
@@ -4525,6 +4556,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(False)
 			self.sboxs3.ShowItems(False)
 			self.sboxs4.ShowItems(False)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(False)
 			self.Layout()
 		elif rselect == 'Amplitude with Phase':
@@ -4532,6 +4564,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(True)
 			self.sboxs3.ShowItems(False)
 			self.sboxs4.ShowItems(False)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(False)
 			self.Layout()
 		elif rselect == 'Phase':
@@ -4539,6 +4572,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(True)
 			self.sboxs3.ShowItems(True)
 			self.sboxs4.ShowItems(True)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(False)
 			self.Layout()
 		elif rselect == 'Amplitude (cut plane)':
@@ -4546,6 +4580,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(False)
 			self.sboxs3.ShowItems(True)
 			self.sboxs4.ShowItems(True)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(False)
 			self.Layout()
 		elif rselect == 'Amplitude and Phase':
@@ -4553,6 +4588,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(True)
 			self.sboxs3.ShowItems(True)
 			self.sboxs4.ShowItems(True)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(False)
 			self.Layout()
 		elif rselect == 'Amplitude Clipped Phase':
@@ -4560,6 +4596,7 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(True)
 			self.sboxs3.ShowItems(True)
 			self.sboxs4.ShowItems(True)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(True)
 			self.Layout()
 		elif rselect == 'Amplitude q-Colour':
@@ -4567,7 +4604,16 @@ class SubPanel_View_Object(wx.ScrolledWindow):
 			self.sboxs2.ShowItems(False)
 			self.sboxs3.ShowItems(False)
 			self.sboxs4.ShowItems(False)
+			self.sboxsEuler.ShowItems(False)
 			self.hbox5.ShowItems(False)
+			self.Layout()
+		elif rselect == 'Euler Slice':
+			self.sboxs1.ShowItems(True)
+			self.sboxs2.ShowItems(True)
+			self.sboxs3.ShowItems(True)
+			self.sboxs4.ShowItems(False)
+			self.sboxsEuler.ShowItems(True)
+			self.hbox5.ShowItems(True)
 			self.Layout()
 		w,h = self.Sizer.GetMinSize()
 		self.SetVirtualSize((w,h))

@@ -369,6 +369,8 @@ def GetInstanceObject(panelphase, i):
 		object.append( panelphase.pipelineitems[i].nx.value.GetValue() )
 		object.append( panelphase.pipelineitems[i].ny.value.GetValue() )
 		object.append( panelphase.pipelineitems[i].nz.value.GetValue() )
+		object.append( panelphase.pipelineitems[i].ntheta.value.GetValue() )
+		object.append( panelphase.pipelineitems[i].npsi.value.GetValue() )
 		object.append( panelphase.pipelineitems[i].chkbox_axes.GetValue() )
 		object.append( panelphase.pipelineitems[i].feature_angle.value.GetValue() )
 		object.append( panelphase.pipelineitems[i].axes_fontfactor.value.GetValue() )
@@ -1095,14 +1097,16 @@ def SetInstanceObject(panelphase, instance, idx, subpanel_items):
 			panelphase.pipelineitems[idx].nx.value.SetValue(object[10])
 			panelphase.pipelineitems[idx].ny.value.SetValue(object[11])
 			panelphase.pipelineitems[idx].nz.value.SetValue(object[12])
-			panelphase.pipelineitems[idx].chkbox_axes.SetValue(object[13])
+			panelphase.pipelineitems[idx].ntheta.value.SetValue(object[13])
+			panelphase.pipelineitems[idx].npsi.value.SetValue(object[14])
+			panelphase.pipelineitems[idx].chkbox_axes.SetValue(object[15])
 			try:
-				panelphase.pipelineitems[idx].feature_angle.value.SetValue(object[14])
-				panelphase.pipelineitems[idx].axes_fontfactor.value.SetValue(object[15])
+				panelphase.pipelineitems[idx].feature_angle.value.SetValue(object[16])
+				panelphase.pipelineitems[idx].axes_fontfactor.value.SetValue(object[17])
 			except:
 				pass
 			try:
-				panelphase.pipelineitems[idx].meshsubiter.value.SetValue(object[16])
+				panelphase.pipelineitems[idx].meshsubiter.value.SetValue(object[18])
 			except:
 				pass
 			panelphase.pipelineitems[idx].OnRadioSelect(None)
